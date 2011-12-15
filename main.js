@@ -5,6 +5,10 @@ var qstring = require('querystring');
 var cp = require('child_process');
 var rl = require('readline');
 var fs = require('fs');
+var ev = require("events");
+var util = require('util');
+
+var colors = require('colors');
 
 var log = require('./log.js');
 log.init('out.log'); // init log first
@@ -136,16 +140,42 @@ Config.prototype.__defineSetter__('token', function(token) {
     this.data.token = token;
 });
 
-var config = new Config('./.atfrc');
 
-var userstream = function() {
+var Userstream = function(token) {
+    ev.EventEmitter.call(this);
+    this.token = token;
+
+    this._init();
+};
+util.inherits(Userstream, ev.EventEmitter);
+
+Userstream.prototype._init = function() {
+    var self = this;
     var url = 'https://userstream.twitter.com/2/user.json';
     nt.get({
         url: url, 
-        auth: sign(config.token, 'GET', url).header,
+        auth: sign(self.token, 'GET', url).header,
+        dataType: 'json',
+        streaming: true,
+        cb: function(e, data) {
+            if (e) {
+                self.emit('error', e);
+                return;
+            }
+            if (data.friends) {
+                self.emit('friends', data.friends);
+            } else if (data.event) {
+                self.emit('event', data);
+            } else if (data.text) {
+                self.emit('tweet', data);
+            } else {
+                self.emit('other', data);
+            }
+        }
     });
 };
 
+var config = new Config('./.atfrc');
 var login = new OAuthLogin(config.token, function(e, token) {
     if (e) {
         throw e;
@@ -154,10 +184,25 @@ var login = new OAuthLogin(config.token, function(e, token) {
         config.token = token;
         config.write();
     }
-    console.log('login success: ', config.token.screen_name);    
+    console.log('login success: ', config.token.screen_name);
     logger.info('login success: ', config.token.screen_name);
 
-    userstream();
+    var us = new Userstream(config.token);
+    us.on('error', function(e) {
+        console.log('error happens:', e);
+    });
+    us.on('friends', function(f) {
+        console.log('recved friends:', f);
+    });
+    us.on('tweet', function(t) {
+        console.log(t.user.screen_name.inverse.bold.yellow, t.text);
+    });
+    us.on('event', function(e) {
+        console.log('recved event:', e);
+    });
+    us.on('other', function(o) {
+        console.log('recved other:', o);
+    });
 });
 
 

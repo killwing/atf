@@ -38,21 +38,40 @@
             var chunks = [];
             res.on('data', function (chunk) {
                 logger.debug('data:', chunk.toString('utf8'));
-                chunks.push(chunk); 
+                chunk = chunk.toString('utf8').trim();
+                if (chunk) {
+                    if (settings.streaming && settings.cb) {
+                        if (settings.dataType == 'json') {
+                            try {
+                                chunk = JSON.parse(chunk); 
+                            } catch (e) {
+                                logger.warn('JSON parse error:', e);
+                            }
+                        }
+                        settings.cb(null, chunk); 
+                    } else {
+                        chunks.push(chunk); 
+                    }
+                }
             });
 
             res.on('end', function() {
                 logger.info('end');
 
-                var data = chunks.join('');
+                if (!settings.streaming) {
+                    var data = chunks.join('');
 
-                if (settings.dataType == 'json') {
-                    // TODO: exception handling
-                    data = JSON.parse(data); 
-                }
+                    if (settings.dataType == 'json') {
+                        try {
+                            data = JSON.parse(data); 
+                        } catch (e) {
+                            logger.warn('JSON parse error:', e);
+                        }
+                    }
 
-                if (settings.cb) { 
-                    settings.cb(null, data); 
+                    if (settings.cb) { 
+                        settings.cb(null, data); 
+                    }
                 }
             });
 
@@ -84,10 +103,6 @@
 
     nt.post = function(settings) {
         request('POST', settings);
-    };
-
-    nt.stream = function(settings) {
-        request('STREAM', settings);
     };
 
 
