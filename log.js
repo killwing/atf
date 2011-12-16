@@ -1,5 +1,3 @@
-#!/usr/local/bin/node
-
 (function() {
     var fs = require('fs');
     var util = require('util');

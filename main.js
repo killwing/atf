@@ -14,6 +14,7 @@ var log = require('./log.js');
 log.init('out.log'); // init log first
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
+var cli = require('./cli.js');
 
 var logger = log.createLogger('main');
 
@@ -119,12 +120,8 @@ var Config = function(filename) {
 
 Config.prototype.read = function() {
     var self = this;
-    try {
-        var data = fs.readFileSync(self.filename, 'utf8');
-        self.data = JSON.parse(data);
-    } catch (e) {
-        console.log('read config error:', e);
-    }
+    var data = fs.readFileSync(self.filename, 'utf8');
+    self.data = JSON.parse(data);
 };
 
 Config.prototype.write = function() {
@@ -140,6 +137,9 @@ Config.prototype.__defineSetter__('token', function(token) {
     this.data.token = token;
 });
 
+Config.prototype.__defineGetter__('cliTheme', function() {
+    return this.data.cliTheme;
+});
 
 var Userstream = function(token) {
     ev.EventEmitter.call(this);
@@ -176,6 +176,9 @@ Userstream.prototype._init = function() {
 };
 
 var config = new Config('./.atfrc');
+cli.setTheme(config.cliTheme);
+var clclient = cli.create();
+
 var login = new OAuthLogin(config.token, function(e, token) {
     if (e) {
         throw e;
@@ -188,21 +191,7 @@ var login = new OAuthLogin(config.token, function(e, token) {
     logger.info('login success: ', config.token.screen_name);
 
     var us = new Userstream(config.token);
-    us.on('error', function(e) {
-        console.log('error happens:', e);
-    });
-    us.on('friends', function(f) {
-        console.log('recved friends:', f);
-    });
-    us.on('tweet', function(t) {
-        console.log(t.user.screen_name.inverse.bold.yellow, t.text);
-    });
-    us.on('event', function(e) {
-        console.log('recved event:', e);
-    });
-    us.on('other', function(o) {
-        console.log('recved other:', o);
-    });
+    clclient.attachStream(us);
 });
 
 
