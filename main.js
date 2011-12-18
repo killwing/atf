@@ -126,7 +126,7 @@ Config.prototype.read = function() {
 
 Config.prototype.write = function() {
     var self = this;
-    fs.writeFileSync(self.filename, JSON.stringify(self.data));
+    fs.writeFileSync(self.filename, JSON.stringify(self.data, null, 4));
 };
 
 Config.prototype.__defineGetter__('token', function() {

@@ -1,1 +1,12 @@
-{"token":{"user_id":"28792910","screen_name":"killwing"}}
+{
+    "token": {
+        "user_id": "28792910",
+        "screen_name": "killwing"
+    },
+    "cliTheme": {
+        "author": "inverse",
+        "url": "yellow",
+        "tag": "red",
+        "user": "green"
+    }
+}
