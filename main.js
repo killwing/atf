@@ -15,6 +15,7 @@ log.init('out.log'); // init log first
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
 var cli = require('./cli.js');
+var wsi = require('./wsi.js');
 
 var logger = log.createLogger('main');
 
@@ -177,7 +178,6 @@ Userstream.prototype._init = function() {
 
 var config = new Config('./.atfrc');
 cli.setTheme(config.cliTheme);
-var clclient = cli.create();
 
 var login = new OAuthLogin(config.token, function(e, token) {
     if (e) {
@@ -191,7 +191,8 @@ var login = new OAuthLogin(config.token, function(e, token) {
     logger.info('login success: ', config.token.screen_name);
 
     var us = new Userstream(config.token);
-    clclient.attachStream(us);
+    cli.attachStream(us);
+    wsi.attachStream(us);
 });
 
 

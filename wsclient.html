@@ -1,0 +1,15 @@
+<html>
+<script src="socket.io.js"></script>
+<script>
+    var socket = io.connect('http://localhost:8888');
+
+    socket.on('connect', function () {
+        document.write('Connected!');
+    });
+
+    socket.on('tweet', function(t) {
+        document.write(t.text);
+        document.write('<br>');
+    });
+</script>
+</html>

@@ -110,7 +110,7 @@
     var root = this;
     if (typeof module !== 'undefined'  && module.exports) {
         module.exports = nt;
-    } else if (!root.kt) {
+    } else if (!root.nt) {
         root.nt = nt;
     }
 

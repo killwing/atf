@@ -50,42 +50,34 @@
         return retStr;
     }
 
-    var CLInterface = function() {
-    };
 
-    CLInterface.prototype.attachStream = function(us) {
-        us.on('error', this._onError);
-        us.on('friends', this._onFriends);
-        us.on('tweet', this._onTweet); 
-        us.on('event', this._onEvent);
-        us.on('other', this._onOther);
-    };
-
-    CLInterface.prototype._onError = function(e) {
+    var onError = function(e) {
         console.log('error happens:', e);
     };
 
-    CLInterface.prototype._onFriends = function(f) {
+    var onFriends = function(f) {
         console.log('recved friends:', f);
     };
 
-    CLInterface.prototype._onTweet = function(t) {
-        console.log(t.user.screen_name.author, makeEntities(t.text, t.entities));
+    var onTweet = function(t) {
+        console.log(t.user.screen_name.author.bold, makeEntities(t.text, t.entities));
     };
 
-    CLInterface.prototype._onEvent = function(e) {
+    var onEvent = function(e) {
         console.log('recved event:', e);
     };
 
-    CLInterface.prototype._onOther = function(o) {
+    var onOther = function(o) {
         console.log('recved other:', o);
     };
 
-
-
     var cli = {};
-    cli.create = function() {
-        return new CLInterface();
+    cli.attachStream = function(us) {
+        us.on('error', onError);
+        us.on('friends', onFriends);
+        us.on('tweet', onTweet); 
+        us.on('event', onEvent);
+        us.on('other', onOther);
     };
 
     cli.setTheme = function(theme) {
@@ -105,7 +97,7 @@
     var root = this;
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = cli;
-    } else if (!root.kt) {
+    } else if (!root.cli) {
         root.cli = cli;
     }
 

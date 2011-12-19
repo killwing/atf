@@ -49,8 +49,8 @@
     var root = this;
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = log;
-    } else if (!root.kt) {
-        root.nt = log;
+    } else if (!root.log) {
+        root.log = log;
     }
 
 })();
