@@ -9,12 +9,17 @@
         stream: process.stdout
     };
 
-    log.init = function(path) {
-        this.stream = fs.createWriteStream(path);
-    };
-
     log.createLogger = function(id) {
         return new Logger(id); 
+    };
+
+    log.setFile = function(path) {
+        var self = this;
+        self.stream = fs.createWriteStream(path);
+        self.stream.on('error', function(e) {
+            console.warn('error ocurred on log file:', e.toString());
+            self.stream = process.stdout; // reset to stdout
+        });
     };
 
     log.setLevel = function(lv) {

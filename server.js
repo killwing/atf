@@ -9,13 +9,9 @@ var ev = require("events");
 var util = require('util');
 var path = require('path');
 
-var colors = require('colors');
-
 var log = require('./log.js');
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
-var cli = require('./cli.js');
-var wsi = require('./wsi.js');
 
 // app keys
 var CONSUMER_KEY = 'hn3jKKLGeTLDbytT8qbUNA';
@@ -136,8 +132,12 @@ Config.prototype.__defineSetter__('token', function(token) {
     this.data.token = token;
 });
 
-Config.prototype.__defineGetter__('cliTheme', function() {
-    return this.data.cliTheme;
+Config.prototype.__defineGetter__('cli', function() {
+    return this.data.cli;
+});
+
+Config.prototype.__defineGetter__('wsi', function() {
+    return this.data.wsi;
 });
 
 Config.prototype.__defineGetter__('log', function() {
@@ -179,28 +179,40 @@ Userstream.prototype._init = function() {
 };
 
 
-// init 
-var config = new Config(path.join(__dirname, '.atfrc'));
-cli.setTheme(config.cliTheme);
-log.init(path.join(__dirname, 'out.log'));
-log.setLevel(config.log.level);
-var logger = log.createLogger('main');
+// main 
+(function() {
+    var config = new Config(path.join(__dirname, 'atfrc'));
 
-var login = new OAuthLogin(config.token, function(e, token) {
-    if (e) {
-        throw e;
+    if (config.log.file) {
+        log.setFile(path.join(__dirname, config.log.file));
     }
-    if (token) {
-        config.token = token;
-        config.write();
-    }
-    console.log('login success: ', config.token.screen_name);
-    logger.info('login success: ', config.token.screen_name);
+    log.setLevel(config.log.level);
+    var logger = log.createLogger('main');
 
-    var us = new Userstream(config.token);
-    cli.attachStream(us);
-    wsi.attachStream(us);
-});
+    var login = new OAuthLogin(config.token, function(e, token) {
+        if (e) {
+            throw e;
+        }
+        if (token) {
+            config.token = token;
+            config.write();
+        }
+        console.log('login success: ', config.token.screen_name);
+        logger.info('login success: ', config.token.screen_name);
 
+        var us = new Userstream(config.token);
+        if (config.cli.enable) {
+            var cli = require('./cli.js');
+            cli.setTheme(config.cli.theme);
+            cli.attachStream(us);
+        }
+
+        if (config.wsi.enable) {
+            var wsi = require('./wsi.js');
+            wsi.attachStream(us);
+        }
+    });
+
+})();
 
 

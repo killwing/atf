@@ -5,13 +5,20 @@
         "user_id": "28792910",
         "screen_name": "killwing"
     },
-    "cliTheme": {
-        "author": "inverse",
-        "url": "yellow",
-        "tag": "magenta",
-        "user": "cyan"
+    "cli": {
+        "enable": false,
+        "theme": {
+            "author": "inverse",
+            "url": "yellow",
+            "tag": "magenta",
+            "user": "cyan"
+        }
+    },
+    "wsi": {
+        "enable": true
     },
     "log": {
+        "file": "",
         "level": "warn"
     }
 }
