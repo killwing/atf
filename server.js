@@ -7,6 +7,7 @@ var rl = require('readline');
 var fs = require('fs');
 var ev = require("events");
 var util = require('util');
+var path = require('path');
 
 var colors = require('colors');
 
@@ -179,9 +180,9 @@ Userstream.prototype._init = function() {
 
 
 // init 
-var config = new Config('./.atfrc');
+var config = new Config(path.join(__dirname, '.atfrc'));
 cli.setTheme(config.cliTheme);
-log.init('out.log');
+log.init(path.join(__dirname, 'out.log'));
 log.setLevel(config.log.level);
 var logger = log.createLogger('main');
 
