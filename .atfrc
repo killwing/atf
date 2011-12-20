@@ -12,6 +12,6 @@
         "user": "cyan"
     },
     "log": {
-        "level": "debug"
+        "level": "warn"
     }
 }
