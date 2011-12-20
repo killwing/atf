@@ -10,5 +10,8 @@
         "url": "yellow",
         "tag": "magenta",
         "user": "cyan"
+    },
+    "log": {
+        "level": "debug"
     }
 }

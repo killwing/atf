@@ -2,8 +2,27 @@
     var fs = require('fs');
     var util = require('util');
 
-    var Logger = function(stream, id) {
-        this.stream = stream || process.stdout;
+    var levels = ['debug', 'info', 'warn', 'error', 'fatal'];
+
+    var log = {
+        level: 2, // warn
+        stream: process.stdout
+    };
+
+    log.init = function(path) {
+        this.stream = fs.createWriteStream(path);
+    };
+
+    log.createLogger = function(id) {
+        return new Logger(id); 
+    };
+
+    log.setLevel = function(lv) {
+        this.level = levels.indexOf(lv); 
+    };
+
+
+    var Logger = function(id) {
         this.id = id;
 
         // init
@@ -14,36 +33,21 @@
         };
     };
 
-    Logger.prototype._log = function(level, arg) {
-        this.stream.write('[' + (new Date).toLocaleTimeString() + '][' + level + '][' + this.id + ']' + this.spaces + util.format.apply(this, arg) + '\n');
+    Logger.prototype._log = function(lv, arg) {
+        var index = levels.indexOf(lv);
+        if (index >= log.level) {
+            if (lv == 'warn' || lv == 'info') { // padding
+                lv = lv + ' '; 
+            }
+            log.stream.write('[' + (new Date).toLocaleTimeString() + '][' + lv.toUpperCase() + '][' + this.id + ']' + this.spaces + util.format.apply(this, arg) + '\n');
+        }
     };
 
-    Logger.prototype.debug = function() {
-        this._log('DEBUG', arguments); 
-    };
-    Logger.prototype.info = function() {
-        this._log('INFO ', arguments); 
-    };
-    Logger.prototype.warn = function() {
-        this._log('WARN ', arguments); 
-    };
-    Logger.prototype.error = function() {
-        this._log('ERROR', arguments); 
-    };
-    Logger.prototype.fatal = function() {
-        this._log('FATAL', arguments); 
-    };
-
-
-    var log = {};
-    log.init = function(path) {
-        this.stream = fs.createWriteStream(path);
-    };
-
-    log.createLogger = function(id) {
-       return new Logger(this.stream, id); 
-    };
-
+    levels.forEach(function(lv) {
+        Logger.prototype[lv] = function() {
+            this._log(lv, arguments);
+        };
+    });
 
     // exports
     var root = this;

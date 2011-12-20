@@ -11,13 +11,10 @@ var util = require('util');
 var colors = require('colors');
 
 var log = require('./log.js');
-log.init('out.log'); // init log first
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
 var cli = require('./cli.js');
 var wsi = require('./wsi.js');
-
-var logger = log.createLogger('main');
 
 // app keys
 var CONSUMER_KEY = 'hn3jKKLGeTLDbytT8qbUNA';
@@ -142,6 +139,10 @@ Config.prototype.__defineGetter__('cliTheme', function() {
     return this.data.cliTheme;
 });
 
+Config.prototype.__defineGetter__('log', function() {
+    return this.data.log;
+});
+
 var Userstream = function(token) {
     ev.EventEmitter.call(this);
     this.token = token;
@@ -176,8 +177,13 @@ Userstream.prototype._init = function() {
     });
 };
 
+
+// init 
 var config = new Config('./.atfrc');
 cli.setTheme(config.cliTheme);
+log.init('out.log');
+log.setLevel(config.log.level);
+var logger = log.createLogger('main');
 
 var login = new OAuthLogin(config.token, function(e, token) {
     if (e) {
