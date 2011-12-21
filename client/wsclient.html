@@ -1,15 +1,67 @@
 <html>
 <script src="socket.io.js"></script>
 <script>
+    var makeEntities = function(text, entities) {
+        if (!entities) {
+            return text;
+        }
+
+        var all = [];
+        if (entities.urls) {
+            all = all.concat(entities.urls);
+        }
+        if (entities.hashtags) {
+            all = all.concat(entities.hashtags);
+        }
+        if (entities.user_mentions) {
+            all = all.concat(entities.user_mentions);
+        }
+        if (entities.media) {
+            all = all.concat(entities.media);
+        }
+        all.sort(function(x, y) {
+            return x.indices[0] - y.indices[0];
+        });
+
+        var retStr = '';
+        if (all.length == 0) {
+            retStr = text;
+        } else {
+            var last = 0;
+            all.forEach(function(v) {
+                retStr += text.slice(last, v.indices[0]);
+                if (v.url) { // url or media
+                    var realurl = v.expanded_url ? v.expanded_url : v.url;
+                    if (!/^https?:\/\//.test(realurl)) {
+                        realurl = 'http://' + realurl;
+                    }
+                    retStr += '<a href="'+realurl+'" target="_blank">'+realurl+'</a>';
+                } else if (v.text) { // hashtag
+                    retStr += ('#' + v.text).bold();
+                } else if (v.screen_name) { // user_mention
+                    retStr += ('@' + v.screen_name).bold();
+                }
+
+                last = v.indices[1];
+            });
+            retStr += text.slice(last);
+        }
+
+        return retStr;
+    }
+
     var socket = io.connect('http://atf.nodester.com/');
 
-    socket.on('connect', function () {
-        document.write('Connected!');
+    var sockEvents = ['connect', 'connecting', 'connect_failed', 'reconnect', 'reconnecting', 'reconnect_failed', 'disconnect', 'error'];
+    sockEvents.forEach(function(ev) {
+        socket.on(ev, function () {
+            document.write('===== '+ev+' =====<br>');
+        });
     });
 
     socket.on('tweet', function(t) {
-        document.write(t.text);
-        document.write('<br>');
+        document.write(t.user.screen_name.bold().fontcolor('blue')+' '+makeEntities(t.text, t.entities));
+        document.write('<br>----------<br>');
     });
 </script>
 </html>
