@@ -15,10 +15,11 @@
         }
     },
     "wsi": {
-        "enable": true
+        "enable": true,
+        "buffer_size": 100
     },
     "log": {
         "file": "",
-        "level": "warn"
+        "level": "error"
     }
 }

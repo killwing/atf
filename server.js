@@ -210,6 +210,7 @@ Userstream.prototype._init = function() {
         if (config.wsi.enable) {
             var wsi = require('./wsi.js');
             wsi.attachStream(us);
+            wsi.setBufferSize(config.wsi.buffer_size);
         }
     });
 
