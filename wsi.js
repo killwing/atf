@@ -8,6 +8,7 @@
         });
         ws.send('something');
     });
+    logger.debug('load ws');
 
     //var io = require('socket.io').listen(13045);
     var logger = require('./log.js').createLogger('wsi');
