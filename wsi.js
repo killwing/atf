@@ -24,7 +24,9 @@
             buffer.forEach(function(item) {
                 clients.forEach(function(client) {
                     client.send(JSON.stringify(item), function(err) {
-                        logger.warn('send error: ', err);
+                        if (err) {
+                            logger.warn('send error: ', err);
+                        }
                     });
                 }); 
             });
@@ -72,7 +74,9 @@
                     refreshBuffer();
                     clients.forEach(function(client) {
                         client.send(JSON.stringify(msg), function(err) {
-                            logger.warn('send error: ', err);
+                            if (err) {
+                                logger.warn('send error: ', err);
+                            }
                         });
                     }); 
                 } else {
