@@ -1,4 +1,6 @@
 (function() {
+    var logger = require('./log.js').createLogger('wsi');
+
     var WebSocketServer = require('ws').Server;
     var wss = new WebSocketServer({port: 13045});
     wss.on('connection', function(ws) {
@@ -11,7 +13,6 @@
     logger.debug('load ws');
 
     //var io = require('socket.io').listen(13045);
-    var logger = require('./log.js').createLogger('wsi');
 
     var events = ['error', 'friends', 'tweet', 'event', 'other'];
     var buffer = [];
