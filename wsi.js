@@ -1,5 +1,15 @@
 (function() {
-    var io = require('socket.io').listen(13045);
+    var WebSocketServer = require('ws').Server;
+    var wss = new WebSocketServer({port: 13045});
+    wss.on('connection', function(ws) {
+        logger.debug('ws user connected');
+        ws.on('message', function(message) {
+            console.log('received: %s', message);
+        });
+        ws.send('something');
+    });
+
+    //var io = require('socket.io').listen(13045);
     var logger = require('./log.js').createLogger('wsi');
 
     var events = ['error', 'friends', 'tweet', 'event', 'other'];
@@ -9,7 +19,7 @@
     var refreshBuffer = function() {
         if (buffer.length) {
             buffer.forEach(function(item) {
-                io.sockets.emit(item.event, item.data);
+                //io.sockets.emit(item.event, item.data);
             });
             buffer = [];
         } 
@@ -27,6 +37,7 @@
     };
 
     var init = function() {
+        /*
         io.configure(function() {
             io.set('log level', 1);
         });
@@ -38,7 +49,8 @@
             socket.on('disconnect', function () {
                 logger.debug('user disconnected');
             });
-        });
+    });
+        */
     };
 
     var wsi = {};
@@ -46,6 +58,7 @@
          // just proxy events
         events.forEach(function(e) {
             us.on(e, function(data) {
+                /*
                 if (io.sockets.clients().length) { // if we have clients connected
                     refreshBuffer();
                     io.sockets.emit(e, data);
@@ -53,6 +66,7 @@
                     pushToBuffer({event: e, data: data});
                     logger.debug('buffer len:', buffer.length);
                 }
+                */
             });
         });
     };
