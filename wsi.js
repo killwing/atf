@@ -45,6 +45,8 @@
 
     var init = function() {
         wss.on('connection', function(ws) {
+            clients.push(ws);
+
             logger.debug('user connected, clients: ', clients.length);
             refreshBuffer();
 
@@ -57,8 +59,6 @@
                 logger.debug('user error');
                 clients.clean(ws);
             });
-            
-            clients.push(ws);
         });
     };
 
