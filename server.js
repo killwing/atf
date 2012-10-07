@@ -9,6 +9,7 @@ var ev = require("events");
 var util = require('util');
 var path = require('path');
 
+var ut = require('./ut-0.1.0.js');
 var log = require('./log.js');
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
@@ -181,7 +182,7 @@ Userstream.prototype._init = function() {
 
 // main 
 (function() {
-    var config = new Config(path.join(__dirname, 'atfrc'));
+    var config = new Config(path.join(__dirname, 'config.json'));
 
     if (config.log.file) {
         log.setFile(path.join(__dirname, config.log.file));
