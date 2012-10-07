@@ -1,5 +1,4 @@
 <html>
-<script src="socket.io.js"></script>
 <script>
     var makeEntities = function(text, entities) {
         if (!entities) {
@@ -50,19 +49,29 @@
         return retStr;
     }
 
-    //var socket = io.connect('http://localhost:13045');
-    var socket = io.connect('http://atf.nodester.com/');
+    var connection = new WebSocket('ws://atf.nodester.com/');
+    connection.onopen = function () {
+        document.write('===== connection established =====<br>');
+    };
 
-    var sockEvents = ['connect', 'connecting', 'connect_failed', 'reconnect', 'reconnecting', 'reconnect_failed', 'disconnect', 'error'];
-    sockEvents.forEach(function(ev) {
-        socket.on(ev, function () {
-            document.write('===== '+ev+' =====<br>');
-        });
-    });
+    connection.onerror = function (err) {
+        document.write('===== connection error: ' + err + ' =====<br>');
+    };
 
-    socket.on('tweet', function(t) {
-        document.write(t.user.screen_name.bold().fontcolor('blue')+' '+makeEntities(t.text, t.entities));
-        document.write('<br>----------<br>');
-    });
+    connection.onmessage = function (e) {
+        console.log('recved: ' + e.data);
+        var msg = JSON.parse(e.data);
+        if (msg.event == 'tweet') {
+            var t = msg.data;
+            document.write(t.user.screen_name.bold().fontcolor('blue')+' '+makeEntities(t.text, t.entities));
+            document.write('<br>--------------------<br>');
+        } else {
+            document.write('== recved event: ' + msg.event + ' ==<br>');
+        }
+    };
+
+    connection.onclose = function() {
+        document.write('===== connection closed =====<br>');
+    }
 </script>
 </html>
