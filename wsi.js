@@ -1,4 +1,5 @@
 (function() {
+    var _ = require('./underscoreplus.js');
     var logger = require('./log.js').createLogger('wsi');
 
     var WebSocketServer = require('ws').Server;
@@ -44,12 +45,12 @@
 
             ws.on('close', function () {
                 logger.debug('user closed');
-                clients.clean(ws);
+                _.erase(clients, ws);
             });
 
             ws.on('error', function () {
                 logger.debug('user error');
-                clients.clean(ws);
+                _.erase(clients, ws);
             });
         });
     };

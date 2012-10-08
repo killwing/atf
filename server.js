@@ -9,7 +9,6 @@ var ev = require("events");
 var util = require('util');
 var path = require('path');
 
-var ut = require('./ut-0.1.0.js');
 var log = require('./log.js');
 var nt = require('./nt.js');
 var oauth = require('./OAuthSimple.js');
