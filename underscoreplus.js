@@ -1,4 +1,4 @@
-// underscoreplus.js v0.1.0
+// underscoreplus.js v0.1.1
 
 (function() {
 
@@ -110,12 +110,19 @@ usp.addBlankTarget = function(a) {
 // exports
 var root = this;
 if (typeof module !== 'undefined' && module.exports) {
-    var _ = require('underscore');
-    _.mixin(usp);
-    module.exports = _;
+    try {
+        var _ = require('underscore');
+        _.mixin(usp);
+        module.exports = _;
+    } catch (e) {
+        module.exports = usp;
+    }
 } else if (root._) {
     root._.mixin(usp);
+} else {
+    root._ = usp;
 }
 
 
-})();
+}).call(this);
+
