@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WSClient</title>
+        <script>
+            var makeEntities = function(text, entities) {
+                if (!entities) {
+                    return text;
+                }
+
+                var all = [];
+                if (entities.urls) {
+                    all = all.concat(entities.urls);
+                }
+                if (entities.hashtags) {
+                    all = all.concat(entities.hashtags);
+                }
+                if (entities.user_mentions) {
+                    all = all.concat(entities.user_mentions);
+                }
+                if (entities.media) {
+                    all = all.concat(entities.media);
+                }
+                all.sort(function(x, y) {
+                    return x.indices[0] - y.indices[0];
+                });
+
+                var retStr = '';
+                if (all.length == 0) {
+                    retStr = text;
+                    } else {
+                    var last = 0;
+                    all.forEach(function(v) {
+                        retStr += text.slice(last, v.indices[0]);
+                        if (v.url) { // url or media
+                            var realurl = v.expanded_url ? v.expanded_url : v.url;
+                            if (!/^https?:\/\//.test(realurl)) {
+                                realurl = 'http://' + realurl;
+                            }
+                            retStr += '<a href="'+realurl+'" target="_blank">'+realurl+'</a>';
+                            } else if (v.text) { // hashtag
+                            retStr += ('#' + v.text).bold();
+                            } else if (v.screen_name) { // user_mention
+                            retStr += ('@' + v.screen_name).bold();
+                        }
+
+                        last = v.indices[1];
+                    });
+                    retStr += text.slice(last);
+                }
+
+                return retStr;
+            }
+
+            var connect = function() {
+                var tl = document.getElementById('timeline');
+                var connection = new WebSocket('ws://atf.nodester.com/');
+
+                connection.onopen = function () {
+                    tl.innerHTML = '===== connection established =====<br>' + tl.innerHTML;
+                    document.getElementById('reconnect').style.display = 'none';
+                };
+
+                connection.onerror = function (err) {
+                    tl.innerHTML = '===== connection error: ' + err + ' =====<br>' + tl.innerHTML;
+                };
+
+                connection.onmessage = function (e) {
+                    //console.log('recved: ' + e.data);
+                    var msg = JSON.parse(e.data);
+                    if (msg.event == 'tweet') {
+                        var t = msg.data;
+                        tl.innerHTML = t.user.screen_name.bold().fontcolor('blue')+' '+makeEntities(t.text, t.entities)
+                        + '<br>--------------------<br>' + tl.innerHTML;
+                    } else {
+                        tl.innerHTML = '== ' + msg.event + ' event: ' + msg.data + ' ==<br>' + tl.innerHTML;
+                    }
+                };
+
+                connection.onclose = function() {
+                    tl.innerHTML = '===== connection closed =====<br>' + tl.innerHTML;
+                    document.getElementById('reconnect').style.display = 'block';
+                }
+            }
+
+            window.onload = function() {
+                connect();
+            }
+        </script>
+
+    </head>
+    <body>
+        <button id='reconnect' type='button' style='width:100%;' onclick='connect()'>Reconnect</button>
+        <div id='timeline'>
+        </div>
+    </body>
+</html>
